@@ -9,7 +9,13 @@
 import UIKit
 
 class NewsTableViewController: UITableViewController {
-
+    
+    
+    @IBOutlet weak var headerView: UIView!
+    @IBOutlet weak var dateLabel: UILabel!
+    
+    var newsItems = [NewsItem]()
+    
     // Hide status bar
     override var prefersStatusBarHidden: Bool {
         
@@ -20,10 +26,15 @@ class NewsTableViewController: UITableViewController {
         
         super.viewDidLoad()
 
-        tableView.rowHeight = 75
-        tableView.estimatedRowHeight = 75
+        self.tableView.rowHeight = UITableViewAutomaticDimension
+        self.tableView.estimatedRowHeight = 80
 
         self.navigationItem.leftBarButtonItem = self.editButtonItem
+        
+        self.dateLabel.text = currentDate()
+        self.dateLabel.textColor = UIColor.white
+        
+        newsItems = prepareData()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -52,14 +63,24 @@ class NewsTableViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return 5
+        return newsItems.count
     }
 
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "categoryCell", for: indexPath)
+        
+        // Set Identifier
+        let cellIdentifier = "categoryCell"
 
-        // Configure the cell...
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as? NewsTableViewCell else {
+            fatalError("The dequeued cell is not an instance of NewsTableViewCell.")
+        }
+        
+        // Fetches the appropriate meal for the data source layout.
+        let newsItem = newsItems[indexPath.row]
+        
+        // Configure the cell
+        cell.configureNewsCell(with: newsItem)
 
         return cell
     }
@@ -110,4 +131,30 @@ class NewsTableViewController: UITableViewController {
     }
     */
 
+    // MARK: - Private Methods -
+    
+    func prepareData() -> [NewsItem] {
+        
+        let newsItem1 = NewsItem(category: .world, headline: "Climate change protests, divestments meet fossil fuels realities")
+        let newsItem2 = NewsItem(category: .americas, headline: "Officials: FBI is tracking 100 Americans who fought alongside IS in Syria")
+        let newsItem3 = NewsItem(category: .europe, headline: "'One million babies' created by EU student exchanges")
+        let newsItem4 = NewsItem(category: .middleEast, headline: "Airstrikes boost Islamic State, FBI director warns more hostages possible")
+        let newsItem5 = NewsItem(category: .africa, headline: "Nigeria says 70 dead in building collapse; questions S. Africa victim claim")
+        let newsItem6 = NewsItem(category: .asiaPacific, headline: "Despite UN ruling, Japan seeks backing for whale hunting")
+        
+        let dataArray = [newsItem1, newsItem2, newsItem3, newsItem4, newsItem5, newsItem6]
+        
+        return dataArray
+    }
+    
+    func currentDate() -> String {
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.setLocalizedDateFormatFromTemplate("MMMMd")
+        dateFormatter.locale = Locale(identifier: "en_US")
+        
+        let currentDate = dateFormatter.string(from: Date())
+        
+        return currentDate
+    }
 }
